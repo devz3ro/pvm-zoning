@@ -10,11 +10,11 @@ worksheets = workbook.sheets
 host_wwpn_list = []
 nums = 1
 
-puts "Enter the host type (Example: pSeries = RS"
+puts "Enter the host type (Example: RS)"
 platform = gets.chomp
-puts "Enter the target device (Example: MT920"
+puts "Enter the target device (Example: SVC)"
 target = gets.chomp
-puts "Enter the vsan (Example: 201)"
+puts "Enter the vsan (Example: 100)"
 vsan = gets.chomp
 
 worksheets.each do |worksheet|
