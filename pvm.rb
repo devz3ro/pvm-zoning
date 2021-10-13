@@ -26,11 +26,12 @@ worksheets.each do |worksheet|
   end
 end
 
+zone_file = File.open("zone_file.txt", "w:UTF-8")
+
 host_wwpn_list.each do |host|
-  print "\nzone name #{platform}-#{nums}-#{target}-#{host[2]} vsan #{vsan}"
+  zone_file.puts "zone name #{platform}-#{nums}-#{target}-#{host[2]} vsan #{vsan}"
   host[3].split("\n").each do |address|
-    print "\nmember pwwn " + address
+    zone_file.puts "member pwwn " + address
   end
   nums += 1
 end
-puts
