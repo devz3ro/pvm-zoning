@@ -7,6 +7,7 @@ workbook = Creek::Book.new "#{excel}"
 worksheets = workbook.sheets
 
 host_wwpn_list = []
+zone_member_list = []
 svc_target_wwpn_list = {
   "SVCP1" => "500507680c11a766",
   "SVCP2" => "500507680c11a787",
@@ -39,6 +40,7 @@ zone_file = File.open("zone_file.txt", "w:UTF-8")
 
 host_wwpn_list.each do |host|
   zone_file.puts "zone name #{platform.upcase}-#{nums}-#{target.upcase}-#{host[2]} vsan #{vsan}"
+  zone_member_list << "member #{platform.upcase}-#{nums}-#{target.upcase}-#{host[2]}"
   host[3].split("\n").each do |address|
     zone_file.puts "member pwwn " + address
   end
@@ -49,3 +51,16 @@ host_wwpn_list.each do |host|
   end
   nums += 1
 end
+
+puts "Enter the customer name (Example: SONJ)"
+customer = gets.chomp
+puts "Enter the work order number (Example: WO12434)"
+work_order = gets.chomp
+puts "Enter the start and duration (Example: 0101-8am-48hrs"
+duration = gets.chomp
+
+zone_file.puts
+zone_file.puts "zoneset name #{customer}-#{work_order}-#{duration}"
+zone_file.puts zone_member_list
+
+zone_file.close
