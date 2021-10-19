@@ -45,7 +45,7 @@ host_wwpn_list.each do |host|
     zone_file.puts "member pwwn " + address
   end
   if target.upcase == "SVC"
-    target_wwpn_list.each do |storage,wwpn|
+    svc_target_wwpn_list.each do |storage,wwpn|
       zone_file.puts "member pwwn " + wwpn
     end
   end
