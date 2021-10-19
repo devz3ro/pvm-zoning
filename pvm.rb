@@ -19,8 +19,6 @@ svc_target_wwpn_list = {
 }
 nums = 1
 
-my_array = ["one", "two", "three", "four"]
-
 puts "Enter the host type (Example: RS)"
 platform = gets.chomp
 puts "Enter the target device (Example: SVC)"
