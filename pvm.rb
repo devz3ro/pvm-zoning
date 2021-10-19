@@ -39,8 +39,8 @@ end
 zone_file = File.open("zone_file.txt", "w:UTF-8")
 
 host_wwpn_list.each do |host|
-  zone_file.puts "zone name #{platform.upcase}-#{nums}-#{target.upcase}-#{host[2]} vsan #{vsan}"
-  zone_member_list << "member #{platform.upcase}-#{nums}-#{target.upcase}-#{host[2]}"
+  zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{nums}-#{host[2]} vsan #{vsan}"
+  zone_member_list << "member #{platform.upcase}-#{target.upcase}-#{nums}-#{host[2]}"
   host[3].split("\n").each do |address|
     zone_file.puts "member pwwn " + address
   end
