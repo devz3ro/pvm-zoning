@@ -43,10 +43,13 @@ svc_target_wwpn_list = {
 }
 nums = 1
 
+puts
 puts "Enter the host type (Example: RS)"
 platform = gets.chomp
+puts
 puts "Enter the target device (Example: SVC)"
 target = gets.chomp
+puts
 puts "Enter the vsan (Example: 100)"
 vsan = gets.chomp
 
@@ -76,10 +79,13 @@ host_wwpn_list.each do |host|
   nums += 1
 end
 
+puts
 puts "Enter the customer name (Example: SONJ)"
 customer = gets.chomp
+puts
 puts "Enter the work order number (Example: WO12434)"
 work_order = gets.chomp
+puts
 puts "Enter the start and duration (Example: 0101-8am-48hrs)"
 duration = gets.chomp
 
@@ -92,10 +98,13 @@ puts
 
 puts "Enter switch ip:"
 server = gets.chomp
+puts
 puts "Enter your (switch) username:"
 user = gets.chomp
+puts
 puts "Enter your (switch) password:"
 pass = STDIN.noecho(&:gets).chomp
+puts
 
 Net::SSH.start(server, user, :password => pass) do |ssh|
   command_file = File.read("zone_file.txt").split("\n")
