@@ -1,5 +1,27 @@
 #!/usr/local/bin/ruby
 require 'creek'
+require 'net/ssh'
+require 'net/ssh/telnet'
+
+def cmd(ssh_exec,command_string)
+  input_prompt = true
+  output = ''
+  ssh_exec.cmd(command_string) do |command_input|
+      output << command_input.gsub(/\e\].*?\a/,"").gsub(/\e\[.*?m/,"").gsub(/\r/,"")
+          if output =~ /(^.*?)\n(.*)$/m
+              if input_prompt
+                  puts "[SSH]> " + command_string
+                  input_prompt = false
+              else
+                  puts "[SSH]< " + $1
+              end
+              output = $2
+          end
+      end
+      output.each_line do |last|
+          puts "[SSH]< " + last.chomp
+      end
+  end
 
 puts "Enter the workbook file name (Example: pvm.xlsx)"
 excel = gets.chomp
@@ -37,6 +59,7 @@ worksheets.each do |worksheet|
 end
 
 zone_file = File.open("zone_file.txt", "w:UTF-8")
+zone_file.puts "configure terminal"
 
 host_wwpn_list.each do |host|
   zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{nums}-#{host[2]} vsan #{vsan}"
@@ -62,5 +85,20 @@ duration = gets.chomp
 zone_file.puts
 zone_file.puts "zoneset name #{customer.upcase}-#{work_order.upcase}-#{duration.upcase}"
 zone_file.puts zone_member_list
-
 zone_file.close
+
+puts "Enter server hostname:"
+server = gets.chomp
+puts "Enter your username:"
+user = gets.chomp
+puts "Enter your password:"
+pass = STDIN.noecho(&:gets).chomp
+
+Net::SSH.start(server, user, :password => pass) do |ssh|
+  command_file = File.read("zone_file.txt").split("\n")
+  ssh_exec = Net::SSH::Telnet.new("Session" => ssh)
+  command_file.each do |command|
+    cmd(ssh_exec,"#{command}")
+    sleep 0.5
+  end
+end
