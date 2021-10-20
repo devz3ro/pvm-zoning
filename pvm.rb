@@ -113,6 +113,6 @@ Net::SSH.start(server, user, :password => pass) do |ssh|
   ssh_exec = Net::SSH::Telnet.new("Session" => ssh)
   command_file.each do |command|
     cmd(ssh_exec,"#{command}")
-    sleep 2
+    sleep 1
   end
 end
