@@ -5,7 +5,7 @@ require 'net/ssh/telnet'
 
 def cmd(ssh_exec,command_string)
   input_prompt = true
-  output = ''
+  fixed_input = ''
   ssh_exec.cmd(command_string) do |command_input|
       fixed_input << command_input.gsub(/\e\].*?\a/,"").gsub(/\e\[.*?m/,"").gsub(/\r/,"")
           if fixed_input =~ /(^.*?)\n(.*)$/m
