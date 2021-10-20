@@ -77,7 +77,7 @@ host_wwpn_list.each do |host|
       zone_file.puts "member pwwn " + wwpn
     end
   end
-  nums.next
+  nums = nums.next
 end
 
 puts
