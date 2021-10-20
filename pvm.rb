@@ -79,7 +79,7 @@ puts "Enter the customer name (Example: SONJ)"
 customer = gets.chomp
 puts "Enter the work order number (Example: WO12434)"
 work_order = gets.chomp
-puts "Enter the start and duration (Example: 0101-8am-48hrs"
+puts "Enter the start and duration (Example: 0101-8am-48hrs)"
 duration = gets.chomp
 
 zone_file.puts
@@ -90,9 +90,9 @@ puts
 
 puts "Enter switch ip:"
 server = gets.chomp
-puts "Enter your username:"
+puts "Enter your (switch) username:"
 user = gets.chomp
-puts "Enter your password:"
+puts "Enter your (switch) password:"
 pass = STDIN.noecho(&:gets).chomp
 
 Net::SSH.start(server, user, :password => pass) do |ssh|
