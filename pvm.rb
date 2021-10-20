@@ -94,6 +94,7 @@ zone_file.puts
 zone_file.puts "zoneset name #{customer.upcase}-#{work_order.upcase}-#{duration.upcase} vsan #{vsan}"
 zone_file.puts zone_member_list
 zone_file.puts "zoneset activate name #{customer.upcase}-#{work_order.upcase}-#{duration.upcase} vsan #{vsan}"
+zone_file.puts "zone commit vsan #{vsan}"
 zone_file.close
 
 puts
