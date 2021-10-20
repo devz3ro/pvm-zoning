@@ -7,8 +7,8 @@ def cmd(ssh_exec,command_string)
   input_prompt = true
   output = ''
   ssh_exec.cmd(command_string) do |command_input|
-      output << command_input.gsub(/\e\].*?\a/,"").gsub(/\e\[.*?m/,"").gsub(/\r/,"")
-          if output =~ /(^.*?)\n(.*)$/m
+      fixed_input << command_input.gsub(/\e\].*?\a/,"").gsub(/\e\[.*?m/,"").gsub(/\r/,"")
+          if fixed_input =~ /(^.*?)\n(.*)$/m
               if input_prompt
                   puts "[SSH]> " + command_string
                   input_prompt = false
