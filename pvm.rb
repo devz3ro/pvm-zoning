@@ -87,7 +87,7 @@ zone_file.puts "zoneset name #{customer.upcase}-#{work_order.upcase}-#{duration.
 zone_file.puts zone_member_list
 zone_file.close
 
-puts "Enter server hostname:"
+puts "Enter switch ip:"
 server = gets.chomp
 puts "Enter your username:"
 user = gets.chomp
