@@ -93,6 +93,7 @@ duration = gets.chomp
 zone_file.puts
 zone_file.puts "zoneset name #{customer.upcase}-#{work_order.upcase}-#{duration.upcase} vsan #{vsan}"
 zone_file.puts zone_member_list
+zone_file.puts "zone commit vsan #{vsan}"
 zone_file.puts "zoneset activate name #{customer.upcase}-#{work_order.upcase}-#{duration.upcase} vsan #{vsan}"
 zone_file.close
 
@@ -112,6 +113,6 @@ Net::SSH.start(server, user, :password => pass) do |ssh|
   ssh_exec = Net::SSH::Telnet.new("Session" => ssh)
   command_file.each do |command|
     cmd(ssh_exec,"#{command}")
-    sleep 1
+    sleep 2
   end
 end
