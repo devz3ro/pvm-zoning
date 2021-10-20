@@ -7,7 +7,8 @@ def cmd(ssh_exec,command_string)
   input_prompt = true
   fixed_output = ''
   ssh_exec.cmd(command_string) do |command_input|
-    fixed_output << command_input.gsub(/\e\].*?\a/,"").gsub(/\e\[.*?m/,"").gsub(/\r/,"")
+    # Not needed for NX-OS: .gsub(/\e\].*?\a/,"") or .gsub(/\e\[.*?m/,"")
+    fixed_output << command_input.gsub(/\r/,"")
       if fixed_output =~ /(^.*?)\n(.*)$/m
         if input_prompt
           puts "[SSH]> " + command_string
@@ -94,8 +95,8 @@ zone_file.puts "zoneset name #{customer.upcase}-#{work_order.upcase}-#{duration.
 zone_file.puts zone_member_list
 zone_file.puts "zoneset activate name #{customer.upcase}-#{work_order.upcase}-#{duration.upcase} vsan #{vsan}"
 zone_file.close
-puts
 
+puts
 puts "Enter switch ip:"
 server = gets.chomp
 puts
