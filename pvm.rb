@@ -7,8 +7,8 @@ def cmd(ssh_exec,command_string)
   input_prompt = true
   fixed_output = ''
   ssh_exec.cmd(command_string) do |command_input|
-    # Not needed for NX-OS: .gsub(/\e\].*?\a/,"") or .gsub(/\e\[.*?m/,"")
-    fixed_output << command_input.gsub(/\r/,"")
+    # Not needed for NX-OS: .gsub(/\e\].*?\a/,"") or .gsub(/\e\[.*?m/,"") or .gsub(/\r/,"")
+    fixed_output = command_input.chomp
       if fixed_output =~ /(^.*?)\n(.*)$/m
         if input_prompt
           puts "[SSH]> " + command_string
