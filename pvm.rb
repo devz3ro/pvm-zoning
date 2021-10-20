@@ -84,8 +84,9 @@ puts "Enter the start and duration (Example: 0101-8am-48hrs)"
 duration = gets.chomp
 
 zone_file.puts
-zone_file.puts "zoneset name #{customer.upcase}-#{work_order.upcase}-#{duration.upcase}"
+zone_file.puts "zoneset name #{customer.upcase}-#{work_order.upcase}-#{duration.upcase} vsan #{vsan}"
 zone_file.puts zone_member_list
+zone_file.puts "zoneset activate name #{customer.upcase}-#{work_order.upcase}-#{duration.upcase} vsan #{vsan}"
 zone_file.close
 puts
 
