@@ -7,8 +7,8 @@ def cmd(ssh_exec,command_string)
   input_prompt = true
   fixed_output = ''
   ssh_exec.cmd(command_string) do |command_input|
-    # Not needed for NX-OS: .gsub(/\e\].*?\a/,"") or .gsub(/\e\[.*?m/,"") or .gsub(/\r/,"")
-    fixed_output = command_input.chomp
+    # Not needed for NX-OS: .gsub(/\e\].*?\a/,"") or .gsub(/\e\[.*?m/,"")
+    fixed_output = command_input.gsub(/\r/,"")
       if fixed_output =~ /(^.*?)\n(.*)$/m
         if input_prompt
           puts "[SSH]> " + command_string
@@ -42,7 +42,7 @@ svc_target_wwpn_list = {
   "SVCP7" => "500507680c31a788",
   "SVCP8" => "500507680c31a789"
 }
-nums = 1
+nums = '001'
 
 puts
 puts "Enter the host type (Example: RS)"
@@ -77,7 +77,7 @@ host_wwpn_list.each do |host|
       zone_file.puts "member pwwn " + wwpn
     end
   end
-  nums += 1
+  nums.next
 end
 
 puts
@@ -93,7 +93,6 @@ duration = gets.chomp
 zone_file.puts
 zone_file.puts "zoneset name #{customer.upcase}-#{work_order.upcase}-#{duration.upcase} vsan #{vsan}"
 zone_file.puts zone_member_list
-zone_file.puts "zone commit vsan #{vsan}"
 zone_file.puts "zoneset activate name #{customer.upcase}-#{work_order.upcase}-#{duration.upcase} vsan #{vsan}"
 zone_file.close
 
