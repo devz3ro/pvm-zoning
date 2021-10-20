@@ -5,20 +5,20 @@ require 'net/ssh/telnet'
 
 def cmd(ssh_exec,command_string)
   input_prompt = true
-  fixed_input = ''
+  fixed_output = ''
   ssh_exec.cmd(command_string) do |command_input|
-    fixed_input << command_input.gsub(/\e\].*?\a/,"").gsub(/\e\[.*?m/,"").gsub(/\r/,"")
-      if fixed_input =~ /(^.*?)\n(.*)$/m
+    fixed_output << command_input.gsub(/\e\].*?\a/,"").gsub(/\e\[.*?m/,"").gsub(/\r/,"")
+      if fixed_output =~ /(^.*?)\n(.*)$/m
         if input_prompt
           puts "[SSH]> " + command_string
           input_prompt = false
         else
           puts "[SSH]< " + $1
         end
-        output = $2
+        fixed_output = $2
       end
     end
-    output.each_line do |last|
+    fixed_output.each_line do |last|
       puts "[SSH]< " + last.chomp
     end
 end
