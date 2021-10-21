@@ -32,7 +32,6 @@ worksheets = workbook.sheets
 
 host_wwpn_list = []
 zone_member_list = []
-hba_port = ['A', 'B'].cycle
 
 svc_target_wwpn_list = {
   "SVCP01" => "500507680c11a766",
