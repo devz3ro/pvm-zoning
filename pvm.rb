@@ -25,7 +25,7 @@ def cmd(ssh_exec,command_string)
 end
 
 puts
-puts "Enter the workbook file name (Example: pvm.xlsx)"
+print "Enter the workbook file name (Example - pvm.xlsx): "
 excel = gets.chomp
 workbook = Creek::Book.new "#{excel}"
 worksheets = workbook.sheets
@@ -64,13 +64,14 @@ host_num = '001'
 target_port_count = 1
 
 puts
-puts "Enter the host type (Example: RS)"
+print "Enter the host type (Example -> RS): "
 platform = gets.chomp
 puts
-puts "Enter the target device (Example: SVC)"
+puts "Currently defined targets: (SVC | SONJCOE)"
+print "Enter the target device (Example -> MT920): "
 target = gets.chomp
 puts
-puts "Enter the vsan (Example: 100)"
+print "Enter the vsan (Example -> 100): "
 vsan = gets.chomp
 
 worksheets.each do |worksheet|
@@ -133,13 +134,13 @@ host_wwpn_list.each do |host|
 end
 
 puts
-puts "Enter the customer name (Example: SONJ)"
+print "Enter the customer name (Example -> SONJ): "
 customer = gets.chomp
 puts
-puts "Enter the work order number (Example: WO12434)"
+print "Enter the work order number (Example -> WO12434): "
 work_order = gets.chomp
 puts
-puts "Enter the start and duration (Example: 0101-8am-48hrs)"
+print "Enter the start and duration (Example -> 0101-8am-48hrs): "
 duration = gets.chomp
 
 zone_file.puts
@@ -150,13 +151,13 @@ zone_file.puts "zone commit vsan #{vsan}"
 zone_file.close
 
 puts
-puts "Enter switch ip:"
+print "Enter switch ip: "
 server = gets.chomp
 puts
-puts "Enter your (switch) username:"
+print "Enter your (switch) username: "
 user = gets.chomp
 puts
-puts "Enter your (switch) password:"
+print "Enter your (switch) password: "
 pass = STDIN.noecho(&:gets).chomp
 puts
 
