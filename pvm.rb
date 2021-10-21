@@ -87,10 +87,10 @@ zone_file = File.open("zone_file.txt", "w:UTF-8")
 zone_file.puts "configure terminal"
 
 host_wwpn_list.each do |host|
-  zone_member_list << "member #{platform.upcase}-#{target.upcase}-#{host_num}-#{host[2]}"
   if target.upcase == "SVC"
     hba_num = 0
     host[3].split("\n").each do |address|
+      zone_member_list << "member #{platform.upcase}-#{target.upcase}-#{host_num}-hba#{hba_num}-#{host[2]}"
       zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{host_num}-hba#{hba_num}-#{host[2]} vsan #{vsan}"
       zone_file.puts "member pwwn " + address
       if target_port_count % 2 == 0
@@ -108,6 +108,7 @@ host_wwpn_list.each do |host|
   elsif target.upcase == "SONJCOE"
     hba_num = 0
     host[3].split("\n").each do |address|
+      zone_member_list << "member #{platform.upcase}-#{target.upcase}-#{host_num}-hba#{hba_num}-#{host[2]}"
       zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{host_num}-hba#{hba_num}-#{host[2]} vsan #{vsan}"
       zone_file.puts "member pwwn " + address
       if target_port_count % 2 == 0
@@ -125,6 +126,7 @@ host_wwpn_list.each do |host|
   else
     hba_num = 0
     host[3].split("\n").each do |address|
+      zone_member_list << "member #{platform.upcase}-#{target.upcase}-#{host_num}-hba#{hba_num}-#{host[2]}"
       zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{host_num}-hba#{hba_num}-#{host[2]} vsan #{vsan}"
       zone_file.puts "member pwwn " + address
       hba_num += 1
