@@ -88,8 +88,9 @@ zone_file.puts "configure terminal"
 host_wwpn_list.each do |host|
   zone_member_list << "member #{platform.upcase}-#{target.upcase}-#{host_num}-#{host[2]}"
   if target.upcase == "SVC"
+    hba_num = 0
     host[3].split("\n").each do |address|
-      zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{host_num}#{hba_port.next}-#{host[2]} vsan #{vsan}"
+      zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{host_num}-hba#{hba_num}-#{host[2]} vsan #{vsan}"
       zone_file.puts "member pwwn " + address
       if target_port_count % 2 == 0
         svc_target_wwpn_list.each_slice(4).to_a[1].to_h.each do |svcstorage,svcwwpn|
@@ -100,11 +101,13 @@ host_wwpn_list.each do |host|
           zone_file.puts "member pwwn " + svcwwpn
         end
       end
+      hba_num += 1
       target_port_count += 1
     end
   elsif target.upcase == "SONJCOE"
+    hba_num = 0
     host[3].split("\n").each do |address|
-      zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{host_num}#{hba_port.next}-#{host[2]} vsan #{vsan}"
+      zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{host_num}-hba#{hba_num}-#{host[2]} vsan #{vsan}"
       zone_file.puts "member pwwn " + address
       if target_port_count % 2 == 0
         sonj_coe_target_wwpn_list.each_slice(6).to_a[1].to_h.each do |coestorage,coewwpn|
@@ -115,12 +118,15 @@ host_wwpn_list.each do |host|
           zone_file.puts "member pwwn " + coewwpn
         end
       end
+      hba_num += 1
       target_port_count += 1
     end
   else
+    hba_num = 0
     host[3].split("\n").each do |address|
-      zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{host_num}#{hba_port.next}-#{host[2]} vsan #{vsan}"
+      zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{host_num}-hba#{hba_num}-#{host[2]} vsan #{vsan}"
       zone_file.puts "member pwwn " + address
+      hba_num += 1
     end
   end
   host_num = host_num.next
