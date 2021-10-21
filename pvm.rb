@@ -32,17 +32,36 @@ worksheets = workbook.sheets
 
 host_wwpn_list = []
 zone_member_list = []
+hba_port = ['A', 'B'].cycle
+
 svc_target_wwpn_list = {
-  "SVCP1" => "500507680c11a766",
-  "SVCP2" => "500507680c11a787",
-  "SVCP3" => "500507680c11a788",
-  "SVCP4" => "500507680c11a789",
-  "SVCP5" => "500507680c31a766",
-  "SVCP6" => "500507680c31a787",
-  "SVCP7" => "500507680c31a788",
-  "SVCP8" => "500507680c31a789"
+  "SVCP01" => "500507680c11a766",
+  "SVCP02" => "500507680c11a787",
+  "SVCP03" => "500507680c11a788",
+  "SVCP04" => "500507680c11a789",
+  "SVCP05" => "500507680c31a766",
+  "SVCP06" => "500507680c31a787",
+  "SVCP07" => "500507680c31a788",
+  "SVCP08" => "500507680c31a789"
 }
-nums = '001'
+
+sonj_coe_target_wwpn_list = {
+  "SONJCOEP01" => "50050768103145a4",
+  "SONJCOEP02" => "50050768103545a4",
+  "SONJCOEP03" => "50050768103945a4",
+  "SONJCOEP04" => "5005076810314755",
+  "SONJCOEP05" => "5005076810354755",
+  "SONJCOEP06" => "5005076810394755",
+  "SONJCOEP07" => "50050768103245a4",
+  "SONJCOEP08" => "50050768103a45a4",
+  "SONJCOEP09" => "50050768103645a4",
+  "SONJCOEP10" => "5005076810324755",
+  "SONJCOEP11" => "50050768103a4755",
+  "SONJCOEP12" => "5005076810364755"
+}
+
+host_num = '001'
+target_port_count = 1
 
 puts
 puts "Enter the host type (Example: RS)"
@@ -67,17 +86,44 @@ zone_file = File.open("zone_file.txt", "w:UTF-8")
 zone_file.puts "configure terminal"
 
 host_wwpn_list.each do |host|
-  zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{nums}-#{host[2]} vsan #{vsan}"
-  zone_member_list << "member #{platform.upcase}-#{target.upcase}-#{nums}-#{host[2]}"
-  host[3].split("\n").each do |address|
-    zone_file.puts "member pwwn " + address
-  end
+  zone_member_list << "member #{platform.upcase}-#{target.upcase}-#{host_num}-#{host[2]}"
   if target.upcase == "SVC"
-    svc_target_wwpn_list.each do |storage,wwpn|
-      zone_file.puts "member pwwn " + wwpn
+    host[3].split("\n").each do |address|
+      zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{host_num}#{hba_port.next}-#{host[2]} vsan #{vsan}"
+      zone_file.puts "member pwwn " + address
+      if target_port_count % 2 == 0
+        svc_target_wwpn_list.each_slice(4).to_a[1].to_h.each do |svcstorage,svcwwpn|
+          zone_file.puts "member pwwn " + svcwwpn
+        end
+      else
+        svc_target_wwpn_list.each_slice(4).to_a[0].to_h.each do |svcstorage,svcwwpn|
+          zone_file.puts "member pwwn " + svcwwpn
+        end
+      end
+      target_port_count += 1
+    end
+  elsif target.upcase == "SONJCOE"
+    host[3].split("\n").each do |address|
+      zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{host_num}#{hba_port.next}-#{host[2]} vsan #{vsan}"
+      zone_file.puts "member pwwn " + address
+      if target_port_count % 2 == 0
+        sonj_coe_target_wwpn_list.each_slice(6).to_a[1].to_h.each do |coestorage,coewwpn|
+          zone_file.puts "member pwwn " + coewwpn
+        end
+      else
+        sonj_coe_target_wwpn_list.each_slice(6).to_a[0].to_h.each do |coestorage,coewwpn|
+          zone_file.puts "member pwwn " + coewwpn
+        end
+      end
+      target_port_count += 1
+    end
+  else
+    host[3].split("\n").each do |address|
+      zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{host_num}#{hba_port.next}-#{host[2]} vsan #{vsan}"
+      zone_file.puts "member pwwn " + address
     end
   end
-  nums = nums.next
+  host_num = host_num.next
 end
 
 puts
