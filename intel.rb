@@ -73,7 +73,6 @@ puts
 print "Enter the vsan (Example -> 100): "
 vsan = gets.chomp
 
-
 worksheets.each do |worksheet|
   worksheet.rows.each do |row|
     row_cells = row.values
@@ -121,7 +120,9 @@ host_wwpn_list.each do |host|
         zone_file.puts "zone name #{platform.upcase}-#{target.upcase}-#{host_num}-#{host[3]}-#{host[1]} vsan #{vsan}"
         zone_file.puts "member pwwn " + host[5].gsub(/:/,"")
     end
+    if host[3] == "vHBA5"
     host_num = host_num.next
+    end
   end
 end
 
