@@ -89,19 +89,18 @@ puts
 print "Enter the vsan (Example -> 100): "
 vsan = gets.chomp
 
-worksheets.each do |worksheet|
-  worksheet.rows.each do |row|
-    row_cells = row.values
-    unless row_cells.grep(/^c05/).empty?
-      host_wwpn_list << row_cells
-    end
-  end
-end
-
 zone_file = File.open("zone_file.txt", "w:UTF-8")
 zone_file.puts "configure terminal"
 
 if platform_input == platform_1
+  worksheets.each do |worksheet|
+    worksheet.rows.each do |row|
+      row_cells = row.values
+      unless row_cells.grep(/^c05/).empty?
+        host_wwpn_list << row_cells
+      end
+    end
+  end
   host_wwpn_list.each do |host|
     if target.upcase == "SVC"
       hba_num = 0
@@ -153,6 +152,14 @@ if platform_input == platform_1
 end
 
 if platform_input == platform_2
+  worksheets.each do |worksheet|
+    worksheet.rows.each do |row|
+      row_cells = row.values
+      unless row_cells.grep(/vHBA/).empty?
+        host_wwpn_list << row_cells
+      end
+    end
+  end
   host_wwpn_list.each do |host|
     unless host[5].nil?
       if target.upcase == "SVC"
@@ -194,7 +201,6 @@ if platform_input == platform_2
     end
   end
 end
-
 
 puts
 print "Enter the customer name (Example -> SONJ): "
