@@ -2,12 +2,36 @@
 require 'net/http'
 require 'resolv'
 
-puts "Enter old IPv4 address or hostname:"
-hostname_old = gets.chomp
+def cmd(ssh_exec,command_string)
+    input_prompt = true
+    fixed_output = ''
+    ssh_exec.cmd(command_string) do |command_input|
+      # Not needed for Vyatta: .gsub(/\e\].*?\a/,"") or .gsub(/\e\[.*?m/,"") or .gsub(/\r/,"")
+      fixed_output = command_input.strip
+        if fixed_output =~ /(^.*?)\n(.*)$/m
+          if input_prompt
+            vyatta_file.puts "[SSH]> " + command_string
+            input_prompt = false
+          else
+            vyatta_file.puts "[SSH]< " + $1
+          end
+          fixed_output = $2
+        end
+      end
+      fixed_output.each_line do |last|
+        vyatta_file.puts "[SSH]< " + last.strip
+      end
+  end
+
+vyatta_file = File.open("vyatta_file.txt", "w:UTF-8")
+vyatta_file.puts "configure"
+
+print "Enter old IPv4 address or hostname: "
+hostname_old = gets.strip
 ipv4_old = Resolv.getaddress("#{hostname_old}").split('.')
 uri = URI('https://checkip.amazonaws.com')
-ipv4_new = Net::HTTP.get(uri).chomp.split('.')
-ipv4_local = Net::HTTP.get(uri).chomp
+ipv4_new = Net::HTTP.get(uri).strip.split('.')
+ipv4_local = Net::HTTP.get(uri).strip
 
 old_first_octet = ipv4_old[0].to_i.to_s(16)
 old_second_octet = ipv4_old[1].to_i.to_s(16)
@@ -19,34 +43,55 @@ new_second_octet = ipv4_new[1].to_i.to_s(16)
 new_third_octet = ipv4_new[2].to_i.to_s(16)
 new_fourth_octet = ipv4_new[3].to_i.to_s(16)
 
+vyatta_file.puts "delete interfaces ethernet eth6 address 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:1::1/64"
+vyatta_file.puts "delete interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:1::1/64 autonomous-flag true"
+vyatta_file.puts "delete interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:1::1/64 on-link-flag true"
+vyatta_file.puts "delete interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:1::1/64 valid-lifetime 2592000"
+vyatta_file.puts "delete interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:1::1/64"
+vyatta_file.puts "delete interfaces ethernet eth6 ipv6 router-advert radvd-options \"RDNSS 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:1::1 {};\""
+vyatta_file.puts "delete interfaces tunnel tun0 address 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}::/48"
+vyatta_file.puts
+vyatta_file.puts "set interfaces ethernet eth6 address 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:1::1/64"
+vyatta_file.puts "set interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:1::1/64"
+vyatta_file.puts "set interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:1::1/64 autonomous-flag true"
+vyatta_file.puts "set interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:1::1/64 on-link-flag true"
+vyatta_file.puts "set interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:1::1/64 valid-lifetime 2592000"
+vyatta_file.puts "set interfaces ethernet eth6 ipv6 router-advert radvd-options \"RDNSS 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:1::1 {};\""
+vyatta_file.puts "set interfaces tunnel tun0 address 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}::/48"
+vyatta_file.puts "set interfaces tunnel tun0 local-ip #{ipv4_local}"
+vyatta_file.puts "set interfaces tunnel tun0 remote-ip 192.88.99.1"
+vyatta_file.puts
+vyatta_file.puts "delete interfaces ethernet eth7 address 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:2::1/64"
+vyatta_file.puts "delete interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:2::1/64 autonomous-flag true"
+vyatta_file.puts "delete interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:2::1/64 on-link-flag true"
+vyatta_file.puts "delete interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:2::1/64 valid-lifetime 2592000"
+vyatta_file.puts "delete interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:2::1/64"
+vyatta_file.puts "delete interfaces ethernet eth7 ipv6 router-advert radvd-options \"RDNSS 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:2::1 {};\""
+vyatta_file.puts
+vyatta_file.puts "set interfaces ethernet eth7 address 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1/64"
+vyatta_file.puts "set interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1/64"
+vyatta_file.puts "set interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1/64 autonomous-flag true"
+vyatta_file.puts "set interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1/64 on-link-flag true"
+vyatta_file.puts "set interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1/64 valid-lifetime 2592000"
+vyatta_file.puts "set interfaces ethernet eth7 ipv6 router-advert radvd-options \"RDNSS 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1 {};\""
+vyatta_file.close
+
 puts
-puts "delete interfaces ethernet eth6 address 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:1::1/64"
-puts "delete interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:1::1/64 autonomous-flag true"
-puts "delete interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:1::1/64 on-link-flag true"
-puts "delete interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:1::1/64 valid-lifetime 2592000"
-puts "delete interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:1::1/64"
-puts "delete interfaces ethernet eth6 ipv6 router-advert radvd-options \"RDNSS 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:1::1 {};\""
-puts "delete interfaces tunnel tun0 address 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}::/48"
+print "Enter router ip: "
+server = gets.strip
 puts
-puts "set interfaces ethernet eth6 address 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:1::1/64"
-puts "set interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:1::1/64"
-puts "set interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:1::1/64 autonomous-flag true"
-puts "set interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:1::1/64 on-link-flag true"
-puts "set interfaces ethernet eth6 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:1::1/64 valid-lifetime 2592000"
-puts "set interfaces ethernet eth6 ipv6 router-advert radvd-options \"RDNSS 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:1::1 {};\""
-puts "set interfaces tunnel tun0 address 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}::/48"
-puts "set interfaces tunnel tun0 local-ip #{ipv4_local}"
+print "Enter your (router) username: "
+user = gets.strip
 puts
-puts "delete interfaces ethernet eth7 address 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:2::1/64"
-puts "delete interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:2::1/64 autonomous-flag true"
-puts "delete interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:2::1/64 on-link-flag true"
-puts "delete interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:2::1/64 valid-lifetime 2592000"
-puts "delete interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:2::1/64"
-puts "delete interfaces ethernet eth7 ipv6 router-advert radvd-options \"RDNSS 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:2::1 {};\""
+print "Enter your (router) password: "
+pass = STDIN.noecho(&:gets).strip
 puts
-puts "set interfaces ethernet eth7 address 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1/64"
-puts "set interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1/64"
-puts "set interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1/64 autonomous-flag true"
-puts "set interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1/64 on-link-flag true"
-puts "set interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1/64 valid-lifetime 2592000"
-puts "set interfaces ethernet eth7 ipv6 router-advert radvd-options \"RDNSS 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1 {};\""
+
+Net::SSH.start(server, user, :password => pass) do |ssh|
+    command_file = File.read("vyatta_file.txt").split("\n")
+    ssh_exec = Net::SSH::Telnet.new("Session" => ssh)
+    command_file.each do |command|
+      cmd(ssh_exec,"#{command}")
+      sleep 1
+    end
+  end
