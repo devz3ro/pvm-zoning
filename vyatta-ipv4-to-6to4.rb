@@ -1,4 +1,6 @@
 #!/usr/local/bin/ruby
+require 'net/ssh'
+require 'net/ssh/telnet'
 require 'net/http'
 require 'resolv'
 
@@ -74,6 +76,7 @@ vyatta_file.puts "set interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{
 vyatta_file.puts "set interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1/64 on-link-flag true"
 vyatta_file.puts "set interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1/64 valid-lifetime 2592000"
 vyatta_file.puts "set interfaces ethernet eth7 ipv6 router-advert radvd-options \"RDNSS 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1 {};\""
+vyatta_file.puts
 vyatta_file.puts "save"
 vyatta_file.puts "commit"
 vyatta_file.puts "exit"
