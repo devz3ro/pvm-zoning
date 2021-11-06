@@ -10,16 +10,16 @@ def cmd(ssh_exec,command_string)
       fixed_output = command_input.strip
         if fixed_output =~ /(^.*?)\n(.*)$/m
           if input_prompt
-            vyatta_file.puts "[SSH]> " + command_string
+            puts "[SSH]> " + command_string
             input_prompt = false
           else
-            vyatta_file.puts "[SSH]< " + $1
+            puts "[SSH]< " + $1
           end
           fixed_output = $2
         end
       end
       fixed_output.each_line do |last|
-        vyatta_file.puts "[SSH]< " + last.strip
+        puts "[SSH]< " + last.strip
       end
   end
 
