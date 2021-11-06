@@ -8,8 +8,8 @@ def cmd(ssh_exec,command_string)
     input_prompt = true
     fixed_output = ''
     ssh_exec.cmd(command_string) do |command_input|
-      # Not needed for Vyatta: .gsub(/\e\].*?\a/,"") or .gsub(/\e\[.*?m/,"") or .gsub(/\r/,"")
-      fixed_output = command_input.strip
+      # Not needed for Vyatta: .gsub(/\e\].*?\a/,"") or .gsub(/\e\[.*?m/,"")
+      fixed_output = command_input.gsub(/\r/,"")
         if fixed_output =~ /(^.*?)\n(.*)$/m
           if input_prompt
             puts "[SSH]> " + command_string
@@ -21,13 +21,13 @@ def cmd(ssh_exec,command_string)
         end
       end
       fixed_output.each_line do |last|
-        puts "[SSH]< " + last.strip
+        puts "[SSH]< " + last
       end
   end
 
 vyatta_file = File.open("vyatta_file.txt", "w:UTF-8")
 vyatta_file.puts "configure"
-
+puts
 print "Enter old IPv4 address or hostname: "
 hostname_old = gets.strip
 ipv4_old = Resolv.getaddress("#{hostname_old}").split('.')
@@ -77,8 +77,9 @@ vyatta_file.puts "set interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{
 vyatta_file.puts "set interfaces ethernet eth7 ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1/64 valid-lifetime 2592000"
 vyatta_file.puts "set interfaces ethernet eth7 ipv6 router-advert radvd-options \"RDNSS 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:2::1 {};\""
 vyatta_file.puts
-vyatta_file.puts "save"
+vyatta_file.puts "compare"
 vyatta_file.puts "commit"
+vyatta_file.puts "save"
 vyatta_file.puts "exit"
 vyatta_file.puts "exit"
 vyatta_file.close
