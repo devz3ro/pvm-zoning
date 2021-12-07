@@ -3,6 +3,7 @@ require 'net/ssh'
 require 'net/ssh/telnet'
 require 'net/http'
 require 'resolv'
+require 'fileutils'
 
 def cmd(ssh_exec,command_string)
     input_prompt = true
@@ -78,6 +79,16 @@ vyatta_file.puts "save"
 vyatta_file.puts "exit"
 vyatta_file.puts "exit"
 vyatta_file.close
+
+puts "Please review the vyatta_file.txt created in the following location: #{FileUtils.pwd()}"
+print "Continue? (Y/N): "
+answer = gets.upcase.strip
+if answer == "Y"
+  puts "Continuing..."
+else
+  puts "Terminating..."
+  exit
+end
 
 puts
 print "Enter router ip: "
