@@ -36,15 +36,15 @@ uri = URI('https://checkip.amazonaws.com')
 ipv4_new = Net::HTTP.get(uri).strip.split('.')
 ipv4_local = Net::HTTP.get(uri).strip
 
-old_first_octet = ipv4_old[0].to_i.to_s(16)
-old_second_octet = ipv4_old[1].to_i.to_s(16)
-old_third_octet = ipv4_old[2].to_i.to_s(16)
-old_fourth_octet = ipv4_old[3].to_i.to_s(16)
+old_first_octet = ipv4_old[0].to_i.to_s(16).rjust(2, '0')
+old_second_octet = ipv4_old[1].to_i.to_s(16).rjust(2, '0')
+old_third_octet = ipv4_old[2].to_i.to_s(16).rjust(2, '0')
+old_fourth_octet = ipv4_old[3].to_i.to_s(16).rjust(2, '0')
 
-new_first_octet = ipv4_new[0].to_i.to_s(16)
-new_second_octet = ipv4_new[1].to_i.to_s(16)
-new_third_octet = ipv4_new[2].to_i.to_s(16)
-new_fourth_octet = ipv4_new[3].to_i.to_s(16)
+new_first_octet = ipv4_new[0].to_i.to_s(16).rjust(2, '0')
+new_second_octet = ipv4_new[1].to_i.to_s(16).rjust(2, '0')
+new_third_octet = ipv4_new[2].to_i.to_s(16).rjust(2, '0')
+new_fourth_octet = ipv4_new[3].to_i.to_s(16).rjust(2, '0')
 
 print "Please enter your ethX device(s) separated by spaces: "
 interfaces = gets.strip
@@ -57,7 +57,7 @@ print "Remove existing 6to4 IPv6 config? (Y/N): "
 existing = gets.upcase.strip
 
 unless (existing == "Y") || (existing == "N")
-  until (existing == "Y") || (existing == "N")
+  until (existing == "Y") || (existing == "N")                                                                             cct tttttt6
       print "Invalid input, please try again: "
       existing = gets.upcase.strip
   end
