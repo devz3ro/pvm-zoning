@@ -46,7 +46,7 @@ new_second_octet = ipv4_new[1].to_i.to_s(16).rjust(2, '0')
 new_third_octet = ipv4_new[2].to_i.to_s(16).rjust(2, '0')
 new_fourth_octet = ipv4_new[3].to_i.to_s(16).rjust(2, '0')
 
-print "Please enter your ethX device(s) separated by spaces: "
+print "Please enter your ethX / switchX device(s) separated by spaces: "
 interfaces = gets.strip
 ethX = interfaces.split(" ")
 iface_num = 1
