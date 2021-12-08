@@ -51,22 +51,43 @@ interfaces = gets.strip
 ethX = interfaces.split(" ")
 iface_num = 1
 
+print "Remove existing IPv6 config? Enter 'N' if this is your first time running (Y/N): "
+
+existing = gets.upcase.strip
+
+unless (existing == "Y") || (existing == "N")
+  until (existing == "Y") || (existing == "N")
+      print "Invalid input, please try again: "
+      existing = gets.strip
+  end
+end
+
 ethX.each do |iface|
-  vyatta_file.puts "delete interfaces ethernet #{iface} address 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:#{iface_num}::1/64"
-  vyatta_file.puts "delete interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:#{iface_num}::1/64 autonomous-flag true"
-  vyatta_file.puts "delete interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:#{iface_num}::1/64 on-link-flag true"
-  vyatta_file.puts "delete interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:#{iface_num}::1/64 valid-lifetime 2592000"
-  vyatta_file.puts "delete interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:#{iface_num}::1/64"
-  vyatta_file.puts "delete interfaces ethernet #{iface} ipv6 router-advert radvd-options \"RDNSS 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:#{iface_num}::1 {};\""
-  vyatta_file.puts "delete interfaces tunnel tun0 address 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}::/48"
-  vyatta_file.puts
-  vyatta_file.puts "set interfaces ethernet #{iface} address 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64"
-  vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64"
-  vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64 autonomous-flag true"
-  vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64 on-link-flag true"
-  vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64 valid-lifetime 2592000"
-  vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert radvd-options \"RDNSS 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1 {};\""
-  vyatta_file.puts
+  if existing == "Y"
+    vyatta_file.puts "delete interfaces ethernet #{iface} address 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:#{iface_num}::1/64"
+    vyatta_file.puts "delete interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:#{iface_num}::1/64 autonomous-flag true"
+    vyatta_file.puts "delete interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:#{iface_num}::1/64 on-link-flag true"
+    vyatta_file.puts "delete interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:#{iface_num}::1/64 valid-lifetime 2592000"
+    vyatta_file.puts "delete interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:#{iface_num}::1/64"
+    vyatta_file.puts "delete interfaces ethernet #{iface} ipv6 router-advert radvd-options \"RDNSS 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}:#{iface_num}::1 {};\""
+    vyatta_file.puts "delete interfaces tunnel tun0 address 2002:#{old_first_octet}#{old_second_octet}:#{old_third_octet}#{old_fourth_octet}::/48"
+    vyatta_file.puts
+    vyatta_file.puts "set interfaces ethernet #{iface} address 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64"
+    vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64"
+    vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64 autonomous-flag true"
+    vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64 on-link-flag true"
+    vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64 valid-lifetime 2592000"
+    vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert radvd-options \"RDNSS 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1 {};\""
+    vyatta_file.puts
+  else
+    vyatta_file.puts "set interfaces ethernet #{iface} address 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64"
+    vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64"
+    vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64 autonomous-flag true"
+    vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64 on-link-flag true"
+    vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert prefix 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1/64 valid-lifetime 2592000"
+    vyatta_file.puts "set interfaces ethernet #{iface} ipv6 router-advert radvd-options \"RDNSS 2002:#{new_first_octet}#{new_second_octet}:#{new_third_octet}#{new_fourth_octet}:#{iface_num}::1 {};\""
+    vyatta_file.puts
+  end
   iface_num += 1
 end
 
