@@ -58,7 +58,7 @@ existing = gets.upcase.strip
 unless (existing == "Y") || (existing == "N")
   until (existing == "Y") || (existing == "N")
       print "Invalid input, please try again: "
-      existing = gets.strip
+      existing = gets.upcase.strip
   end
 end
 
