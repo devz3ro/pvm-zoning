@@ -51,7 +51,8 @@ interfaces = gets.strip
 ethX = interfaces.split(" ")
 iface_num = 1
 
-print "Remove existing IPv6 config? Enter 'N' if this is your first time running (Y/N): "
+puts "[Enter 'N' if this is your first time executing this program]"
+print "Remove existing 6to4 IPv6 config? (Y/N): "
 
 existing = gets.upcase.strip
 
