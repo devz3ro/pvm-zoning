@@ -163,7 +163,7 @@ if @platform_input == "intel"
     when "AMERGCOE"
       make_zone(american_greetings_wwpn_list, american_greetings_wwpn_list.length / 2, host, 5, true, "#{host[3]}", "#{host[1]}", 5)
     else
-      make_zone(nil, nil, host, 5, nil, "hba#{@hba_num}", "#{host[field - 1]}", nil)
+      make_zone(nil, nil, host, 5, nil, "#{host[3]}", "#{host[1]}", 5)
     end
     @host_num = @host_num.next
   end
