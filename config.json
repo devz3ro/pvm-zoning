@@ -2,7 +2,7 @@
     {
         "short_name": "AMERGCOE",
         "wwpn_id": "1",
-        "wwpn_name": "american_greetings_wwpn_list",
+        "wwpn_name": "amerg_coe_target_wwpn_list",
         "ports":
         {
             "AMERGCOEP01": "524a937da6752100",
