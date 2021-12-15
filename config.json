@@ -1,0 +1,50 @@
+[
+    {
+        "short_name": "AMERGCOE",
+        "wwpn_id": "1",
+        "wwpn_name": "american_greetings_wwpn_list",
+        "ports":
+        {
+            "AMERGCOEP01": "524a937da6752100",
+            "AMERGCOEP02": "524a937da6752103",
+            "AMERGCOEP03": "524a937da6752110",
+            "AMERGCOEP04": "524a937da6752113"
+        }
+    },
+    {
+        "short_name": "SONJCOE",
+        "wwpn_id": "2",
+        "wwpn_name": "sonj_coe_target_wwpn_list",
+        "ports":
+        {
+            "SONJCOEP01": "50050768103145a4",
+            "SONJCOEP02": "50050768103545a4",
+            "SONJCOEP03": "50050768103945a4",
+            "SONJCOEP04": "5005076810314755",
+            "SONJCOEP05": "5005076810354755",
+            "SONJCOEP06": "5005076810394755",
+            "SONJCOEP07": "50050768103245a4",
+            "SONJCOEP08": "50050768103a45a4",
+            "SONJCOEP09": "50050768103645a4",
+            "SONJCOEP10": "5005076810324755",
+            "SONJCOEP11": "50050768103a4755",
+            "SONJCOEP12": "5005076810364755"
+        }
+    },
+    {
+        "short_name": "SVC",
+        "wwpn_id": "3",
+        "wwpn_name": "svc_target_wwpn_list",
+        "ports":
+        {
+            "SVCP01": "500507680c11a766",
+            "SVCP02": "500507680c11a787",
+            "SVCP03": "500507680c11a788",
+            "SVCP04": "500507680c11a789",
+            "SVCP05": "500507680c31a766",
+            "SVCP06": "500507680c31a787",
+            "SVCP07": "500507680c31a788",
+            "SVCP08": "500507680c31a789"
+        }
+    }
+]
