@@ -1,4 +1,5 @@
 #!/usr/local/bin/ruby
+require 'json'
 require 'creek'
 require 'net/ssh'
 require 'net/ssh/telnet'
@@ -19,7 +20,7 @@ def cmd(ssh_exec,command_string)
       end
     end
     fixed_output.each_line do |last|
-      puts "[SSH]< " + last.chomp
+      puts "[SSH]< " + last.strip
     end
 end
 
@@ -38,8 +39,13 @@ def make_zone(target_wwpn_list, slice, host, field, roundr, hf1, hf2, cell)
   unless host[field].nil?
     hba_num = 0
     host[field].split("\n").each do |address|
-      @zone_member_list.push("member #{@platform.upcase}-#{@target.upcase}-#{@host_num}-#{hf1}-#{hf2}")
-      @zone_file.puts "zone name #{@platform.upcase}-#{@target.upcase}-#{@host_num}-#{hf1}-#{hf2} vsan #{@vsan}"
+      unless hf1.nil?
+        @zone_member_list.push("member #{@platform.upcase}-#{@target.upcase}-#{@host_num}-#{hf1}-#{hf2}")
+        @zone_file.puts "zone name #{@platform.upcase}-#{@target.upcase}-#{@host_num}-#{hf1}-#{hf2} vsan #{@vsan}"
+      else
+        @zone_member_list.push("member #{@platform.upcase}-#{@target.upcase}-#{@host_num}-hba#{hba_num}-#{hf2}")
+        @zone_file.puts "zone name #{@platform.upcase}-#{@target.upcase}-#{@host_num}-hba#{hba_num}-#{hf2} vsan #{@vsan}"
+      end
       if @platform_input == "pvm"
         @zone_file.puts "member pwwn " + address
       else
@@ -62,51 +68,21 @@ def make_zone(target_wwpn_list, slice, host, field, roundr, hf1, hf2, cell)
   end
 end
 
-svc_target_wwpn_list = {
-  SVCP01: "500507680c11a766",
-  SVCP02: "500507680c11a787",
-  SVCP03: "500507680c11a788",
-  SVCP04: "500507680c11a789",
-  SVCP05: "500507680c31a766",
-  SVCP06: "500507680c31a787",
-  SVCP07: "500507680c31a788",
-  SVCP08: "500507680c31a789"
-}
-
-sonj_coe_target_wwpn_list = {
-  SONJCOEP01: "50050768103145a4",
-  SONJCOEP02: "50050768103545a4",
-  SONJCOEP03: "50050768103945a4",
-  SONJCOEP04: "5005076810314755",
-  SONJCOEP05: "5005076810354755",
-  SONJCOEP06: "5005076810394755",
-  SONJCOEP07: "50050768103245a4",
-  SONJCOEP08: "50050768103a45a4",
-  SONJCOEP09: "50050768103645a4",
-  SONJCOEP10: "5005076810324755",
-  SONJCOEP11: "50050768103a4755",
-  SONJCOEP12: "5005076810364755"
-}
-
-american_greetings_wwpn_list = {
-  AMERGP01: "524a937da6752100",
-  AMERGP02: "524a937da6752103",
-  AMERGP03: "524a937da6752110",
-  AMERGP04: "524a937da6752113"
-}
+def answer(input, ans1, ans2)
+  unless (input == ans1) || (input == ans2)
+    until (input == ans1) || (input == ans2)
+      print "invalid input, please try again: "
+      input = gets.strip
+    end
+  end
+end
 
 puts
 puts "Valid platform choices are: (pvm | intel)"
 print "Please enter your platform: "
 
 @platform_input = gets.strip
-
-unless (@platform_input == "pvm") || (@platform_input == "intel")
-    until (@platform_input == "pvm") || (@platform_input == "intel")
-        print "invalid input, please try again: "
-        @platform_input = gets.strip
-    end
-end
+answer(@platform_input, "pvm", "intel")
 
 puts
 print "Enter the workbook file name (Example - sonj.xlsx): "
@@ -114,13 +90,34 @@ excel = gets.strip
 workbook = Creek::Book.new "#{excel}"
 @worksheets = workbook.sheets
 
+wwpn_file = File.read("config.json")
+@wwpn_data = JSON.parse(wwpn_file)
+
+@wwpn_data.sort_by! { |name| 
+	name["wwpn_name"]
+}
+
 puts
 print "Enter the host type (Example -> RS or CS): "
 @platform = gets.strip
 puts
-puts "Currently defined targets: (SVC | SONJCOE | AMERGCOE)"
-print "Enter the target device (Example -> MT920): "
+puts "Currently defined targets:"
+@wwpn_data.each { |wwpn_print|
+	puts wwpn_print["wwpn_id"] + " = " + wwpn_print["short_name"]
+}
+puts
+print "Enter the target device: "
 @target = gets.strip
+tgt_wwpn_list = {}
+name_wwpn_list = []
+@wwpn_data.each do |group|
+  name_wwpn_list.push(group["short_name"])
+  if (group["wwpn_id"] == "#{@target}") || (group["short_name"] == "#{@target}")
+    tgt_wwpn_list = group["ports"]
+    @target = group["short_name"]
+  end
+end
+
 puts
 print "Enter the vsan (Example -> 100): "
 @vsan = gets.strip
@@ -137,15 +134,10 @@ if @platform_input == "pvm"
   parsesheets("^c05")
   pvmf.each do |field|
     @host_wwpn_list.each do |host|
-      case @target.upcase
-      when "SVC"
-        make_zone(svc_target_wwpn_list, svc_target_wwpn_list.length / 2, host, field, true, "hba#{@hba_num}", "#{host[field - 1]}", nil)
-      when "SONJCOE"
-        make_zone(sonj_coe_target_wwpn_list, sonj_coe_target_wwpn_list.length / 2, host, field, true, "hba#{@hba_num}", "#{host[field - 1]}", nil)
-      when "AMERGCOE"
-        make_zone(american_greetings_wwpn_list, american_greetings_wwpn_list.length / 2, host, field, true, "hba#{@hba_num}", "#{host[field - 1]}", nil)
+      if name_wwpn_list.include?(@target.upcase)
+        make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, field, true, nil, "#{host[field - 1]}", nil)
       else
-        make_zone(nil, nil, host, field, nil, "hba#{@hba_num}", "#{host[field - 1]}", nil)
+        make_zone(nil, nil, host, field, nil, nil, "#{host[field - 1]}", nil)
       end
       @host_num = @host_num.next
     end
@@ -155,13 +147,8 @@ end
 if @platform_input == "intel"
   parsesheets("vHBA")
   @host_wwpn_list.each do |host|
-    case @target.upcase
-    when "SVC"
-      make_zone(svc_target_wwpn_list, svc_target_wwpn_list.length / 2, host, 5, true, "#{host[3]}", "#{host[1]}", 5)
-    when "SONJCOE"
-      make_zone(sonj_coe_target_wwpn_list, sonj_coe_target_wwpn_list.length / 2, host, 5, true, "#{host[3]}", "#{host[1]}", 5)
-    when "AMERGCOE"
-      make_zone(american_greetings_wwpn_list, american_greetings_wwpn_list.length / 2, host, 5, true, "#{host[3]}", "#{host[1]}", 5)
+    if name_wwpn_list.include?(@target.upcase)
+      make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 5, true, "#{host[3]}", "#{host[1]}", 5)
     else
       make_zone(nil, nil, host, 5, nil, "#{host[3]}", "#{host[1]}", 5)
     end
@@ -187,6 +174,8 @@ duration = gets.strip
 @zone_file.close
 
 puts
+puts "zone_file.txt created in #{FileUtils.pwd()}, please review it for accuracy."
+puts
 print "Enter switch ip (default = 172.23.79.11): "
 server = gets.strip
 puts
@@ -194,7 +183,7 @@ print "Enter your (switch) username: "
 user = gets.strip
 puts
 print "Enter your (switch) password: "
-pass = STDIN.noecho(&:gets).chomp
+pass = STDIN.noecho(&:gets).strip
 puts
 
 Net::SSH.start(server, user, :password => pass) do |ssh|
@@ -202,6 +191,6 @@ Net::SSH.start(server, user, :password => pass) do |ssh|
   ssh_exec = Net::SSH::Telnet.new("Session" => ssh)
   command_file.each do |command|
     cmd(ssh_exec,"#{command}")
-    sleep 0.2
+    sleep 0.5
   end
 end
