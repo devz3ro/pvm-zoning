@@ -124,6 +124,7 @@ print "Enter the vsan (Example -> 100): "
 
 pvmf = [3, 7, 11, 15, 19]
 @host_wwpn_list = []
+intelarray = []
 @host_num = '001'
 @target_port_count = 1
 @zone_member_list = []
@@ -146,13 +147,16 @@ end
 
 if @platform_input == "intel"
   parsesheets("vHBA")
-  @host_wwpn_list.each do |host|
+  @host_wwpn_list.each_with_index do |host, index|
+    intelarray.push(host[1])
+    unless host[1] == intelarray[index - 1]
+      @host_num = @host_num.next
+    end
     if name_wwpn_list.include?(@target.upcase)
       make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 5, true, "#{host[3]}", "#{host[1]}", 5)
     else
       make_zone(nil, nil, host, 5, nil, "#{host[3]}", "#{host[1]}", 5)
     end
-    @host_num = @host_num.next
   end
 end
 
