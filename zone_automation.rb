@@ -68,21 +68,17 @@ def make_zone(target_wwpn_list, slice, host, field, roundr, hf1, hf2, cell)
   end
 end
 
-def answer(input, ans1, ans2)
-  unless (input == ans1) || (input == ans2)
-    until (input == ans1) || (input == ans2)
-      print "invalid input, please try again: "
-      input = gets.strip
-    end
-  end
-end
-
 puts
-puts "Valid platform choices are: (pvm | intel)"
+validpf = %w(pvm intel sun)
+puts "Valid platform choices are: (pvm | intel | sun)"
 print "Please enter your platform: "
 
 @platform_input = gets.strip
-answer(@platform_input, "pvm", "intel")
+
+until validpf.include?(@platform_input)
+  puts "Invalid input, please try again"
+  @platform_input = gets.strip
+end
 
 puts
 print "Enter the workbook file name (Example - sonj.xlsx): "
@@ -94,11 +90,11 @@ wwpn_file = File.read("config.json")
 @wwpn_data = JSON.parse(wwpn_file)
 
 @wwpn_data.sort_by! { |name| 
-	name["wwpn_name"]
+	name["wwpn_id"]
 }
 
 puts
-print "Enter the host type (Example -> RS or CS): "
+print "Enter the host type (Example -> RS | CS | SUN): "
 @platform = gets.strip
 puts
 puts "Currently defined targets:"
@@ -124,7 +120,8 @@ print "Enter the vsan (Example -> 100): "
 
 pvmf = [3, 7, 11, 15, 19]
 @host_wwpn_list = []
-intelarray = []
+temparray = []
+sunarray = []
 @host_num = '001'
 @target_port_count = 1
 @zone_member_list = []
@@ -148,14 +145,40 @@ end
 if @platform_input == "intel"
   parsesheets("vHBA")
   @host_wwpn_list.each_with_index do |host, index|
-    intelarray.push(host[1])
-    unless host[1] == intelarray[index - 1]
+    temparray.push(host[1])
+    unless host[1] == temparray[index - 1]
       @host_num = @host_num.next
     end
     if name_wwpn_list.include?(@target.upcase)
       make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 5, true, "#{host[3]}", "#{host[1]}", 5)
     else
       make_zone(nil, nil, host, 5, nil, "#{host[3]}", "#{host[1]}", 5)
+    end
+  end
+end
+
+if @platform_input == "sun"
+  parsesheets("100000|200000")
+  @host_wwpn_list.each do |host|
+    unless host[0] == nil
+      sunarray.push(host)
+    end
+  end
+  sunarray.each_with_index do |host, index|
+    temparray.push(host[1])
+    hba_num = 0
+    unless host[1] == temparray[index - 1]
+      @host_num = @host_num.next
+    end
+    unless index == 0
+      if host[1] == temparray[index - 1]
+        hba_num += 1
+      end
+    end
+    if name_wwpn_list.include?(@target.upcase)
+      make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 3, true, "#{host[0]}-#{host[2]}#{hba_num}", "#{host[1]}", 3)
+    else
+      make_zone(nil, nil, host, 3, nil, "#{host[2]}", "#{host[1]}", 3)
     end
   end
 end
