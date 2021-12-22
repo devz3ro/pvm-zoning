@@ -69,8 +69,8 @@ def make_zone(target_wwpn_list, slice, host, field, roundr, hf1, hf2, cell)
 end
 
 puts
-validpf = %w(pvm intel sun)
-puts "Valid platform choices are: (pvm | intel | sun)"
+validpf = %w(pvm intel opensys)
+puts "Valid platform choices are: (pvm | intel | opensys)"
 print "Please enter your platform: "
 
 @platform_input = gets.strip
@@ -120,8 +120,8 @@ print "Enter the vsan (Example -> 100): "
 
 pvmf = [3, 7, 11, 15, 19]
 @host_wwpn_list = []
-temparray = []
-sunarray = []
+tmparr1 = []
+tmparr2 = []
 @host_num = '001'
 @target_port_count = 1
 @zone_member_list = []
@@ -145,8 +145,8 @@ end
 if @platform_input == "intel"
   parsesheets("vHBA")
   @host_wwpn_list.each_with_index do |host, index|
-    temparray.push(host[1])
-    unless host[1] == temparray[index - 1]
+    tmparr1.push(host[1])
+    unless host[1] == tmparr1[index - 1]
       @host_num = @host_num.next
     end
     if name_wwpn_list.include?(@target.upcase)
@@ -157,28 +157,29 @@ if @platform_input == "intel"
   end
 end
 
-if @platform_input == "sun"
+if @platform_input == "opensys"
   parsesheets("100000|200000")
   @host_wwpn_list.each do |host|
     unless host[0] == nil
-      sunarray.push(host)
+      tmparr2.push(host)
     end
   end
-  sunarray.each_with_index do |host, index|
-    temparray.push(host[1])
-    hba_num = 0
-    unless host[1] == temparray[index - 1]
+  hba = 0
+  tmparr2.each_with_index do |host, index|
+    tmparr1.push(host[1])
+    unless host[1] == tmparr1[index - 1]
       @host_num = @host_num.next
+      hba = 0
     end
     unless index == 0
-      if host[1] == temparray[index - 1]
-        hba_num += 1
+      if host[1] == tmparr1[index - 1]
+        hba += 1
       end
     end
     if name_wwpn_list.include?(@target.upcase)
-      make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 3, true, "#{host[0]}-#{host[2]}#{hba_num}", "#{host[1]}", 3)
+      make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 3, true, "#{host[0]}-#{host[2]}#{hba}", "#{host[1]}", 3)
     else
-      make_zone(nil, nil, host, 3, nil, "#{host[2]}", "#{host[1]}", 3)
+      make_zone(nil, nil, host, 3, nil, "#{host[0]}-#{host[2]}#{hba}", "#{host[1]}", 3)
     end
   end
 end
