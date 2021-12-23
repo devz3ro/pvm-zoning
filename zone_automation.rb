@@ -135,9 +135,9 @@ if @platform_input == "pvm"
   pvmf.each do |field|
     @host_wwpn_list.each do |host|
       if name_wwpn_list.include?(target.upcase)
-        make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, field, true, nil, "#{host[field - 1]}", nil, target)
+        make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, field, true, nil, host[field - 1], nil, target)
       else
-        make_zone(nil, nil, host, field, nil, nil, "#{host[field - 1]}", nil, target)
+        make_zone(nil, nil, host, field, nil, nil, host[field - 1], nil, target)
       end
       @host_num = @host_num.next
     end
@@ -152,9 +152,9 @@ if @platform_input == "intel"
       @host_num = @host_num.next
     end
     if name_wwpn_list.include?(target.upcase)
-      make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 5, true, "#{host[3]}", "#{host[1]}", 5, target)
+      make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 5, true, host[3], host[1], 5, target)
     else
-      make_zone(nil, nil, host, 5, nil, "#{host[3]}", "#{host[1]}", 5, target)
+      make_zone(nil, nil, host, 5, nil, host[3], host[1], 5, target)
     end
   end
 end
@@ -179,11 +179,20 @@ if @platform_input == "opensys"
       end
     end
     if name_wwpn_list.include?(target.upcase)
-      make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 3, true, "#{host[0]}-#{host[2]}#{hba}", "#{host[1]}", 3, target)
+      make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 3, true, "#{host[0]}-#{host[2]}#{hba}", host[1], 3, target)
     elsif target.upcase == "CUSTOM"
-      make_zone(nil, nil, host, 3, nil, "#{host[0]}-#{host[2]}#{hba}", "#{host[1]}", 3, host[5].gsub(/\s/,"-"))
+      if name_wwpn_list.include?(host[5])
+        wwpn_data.each do |group|
+          if group["short_name"] == host[5]
+            tgt_wwpn_list = group["ports"]
+          end
+        end
+        make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 3, true, "#{host[0]}-#{host[2]}#{hba}", host[1], 3, host[5])
+      else
+        make_zone(nil, nil, host, 3, nil, "#{host[0]}-#{host[2]}#{hba}", host[1], 3, host[5].gsub(/\s/,"-"))
+      end
     else
-      make_zone(nil, nil, host, 3, nil, "#{host[0]}-#{host[2]}#{hba}", "#{host[1]}", 3, target)
+      make_zone(nil, nil, host, 3, nil, "#{host[0]}-#{host[2]}#{hba}", host[1], 3, target)
     end
   end
 end
