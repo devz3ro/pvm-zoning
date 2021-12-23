@@ -35,16 +35,16 @@ def parsesheets(grep)
   end
 end
 
-def make_zone(target_wwpn_list, slice, host, field, roundr, hf1, hf2, cell)
+def make_zone(target_wwpn_list, slice, host, field, roundr, hf1, hf2, cell, tgt)
   unless host[field].nil?
     hba_num = 0
     host[field].split("\n").each do |address|
       unless hf1.nil?
-        @zone_member_list.push("member #{@platform.upcase}-#{@target.upcase}-#{@host_num}-#{hf1}-#{hf2}")
-        @zone_file.puts "zone name #{@platform.upcase}-#{@target.upcase}-#{@host_num}-#{hf1}-#{hf2} vsan #{@vsan}"
+        @zone_member_list.push("member #{@platform.upcase}-#{tgt.upcase}-#{@host_num}-#{hf1}-#{hf2}")
+        @zone_file.puts "zone name #{@platform.upcase}-#{tgt.upcase}-#{@host_num}-#{hf1}-#{hf2} vsan #{@vsan}"
       else
-        @zone_member_list.push("member #{@platform.upcase}-#{@target.upcase}-#{@host_num}-hba#{hba_num}-#{hf2}")
-        @zone_file.puts "zone name #{@platform.upcase}-#{@target.upcase}-#{@host_num}-hba#{hba_num}-#{hf2} vsan #{@vsan}"
+        @zone_member_list.push("member #{@platform.upcase}-#{tgt.upcase}-#{@host_num}-hba#{hba_num}-#{hf2}")
+        @zone_file.puts "zone name #{@platform.upcase}-#{tgt.upcase}-#{@host_num}-hba#{hba_num}-#{hf2} vsan #{@vsan}"
       end
       if @platform_input == "pvm"
         @zone_file.puts "member pwwn " + address
@@ -87,9 +87,9 @@ workbook = Creek::Book.new "#{excel}"
 @worksheets = workbook.sheets
 
 wwpn_file = File.read("config.json")
-@wwpn_data = JSON.parse(wwpn_file)
+wwpn_data = JSON.parse(wwpn_file)
 
-@wwpn_data.sort_by! { |name| 
+wwpn_data.sort_by! { |name| 
 	name["wwpn_id"]
 }
 
@@ -98,19 +98,21 @@ print "Enter the host type (Example -> RS | CS | SUN): "
 @platform = gets.strip
 puts
 puts "Currently defined targets:"
-@wwpn_data.each { |wwpn_print|
+puts
+puts "CUSTOM = parse from sheet"
+wwpn_data.each { |wwpn_print|
 	puts wwpn_print["wwpn_id"] + " = " + wwpn_print["short_name"]
 }
 puts
 print "Enter the target device: "
-@target = gets.strip
+target = gets.strip
 tgt_wwpn_list = {}
 name_wwpn_list = []
-@wwpn_data.each do |group|
+wwpn_data.each do |group|
   name_wwpn_list.push(group["short_name"])
-  if (group["wwpn_id"] == "#{@target}") || (group["short_name"] == "#{@target}")
+  if (group["wwpn_id"] == "#{target}") || (group["short_name"] == "#{target}")
     tgt_wwpn_list = group["ports"]
-    @target = group["short_name"]
+    target = group["short_name"]
   end
 end
 
@@ -132,10 +134,10 @@ if @platform_input == "pvm"
   parsesheets("^c05")
   pvmf.each do |field|
     @host_wwpn_list.each do |host|
-      if name_wwpn_list.include?(@target.upcase)
-        make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, field, true, nil, "#{host[field - 1]}", nil)
+      if name_wwpn_list.include?(target.upcase)
+        make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, field, true, nil, "#{host[field - 1]}", nil, target)
       else
-        make_zone(nil, nil, host, field, nil, nil, "#{host[field - 1]}", nil)
+        make_zone(nil, nil, host, field, nil, nil, "#{host[field - 1]}", nil, target)
       end
       @host_num = @host_num.next
     end
@@ -149,10 +151,10 @@ if @platform_input == "intel"
     unless host[1] == tmparr1[index - 1]
       @host_num = @host_num.next
     end
-    if name_wwpn_list.include?(@target.upcase)
-      make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 5, true, "#{host[3]}", "#{host[1]}", 5)
+    if name_wwpn_list.include?(target.upcase)
+      make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 5, true, "#{host[3]}", "#{host[1]}", 5, target)
     else
-      make_zone(nil, nil, host, 5, nil, "#{host[3]}", "#{host[1]}", 5)
+      make_zone(nil, nil, host, 5, nil, "#{host[3]}", "#{host[1]}", 5, target)
     end
   end
 end
@@ -176,10 +178,12 @@ if @platform_input == "opensys"
         hba += 1
       end
     end
-    if name_wwpn_list.include?(@target.upcase)
-      make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 3, true, "#{host[0]}-#{host[2]}#{hba}", "#{host[1]}", 3)
+    if name_wwpn_list.include?(target.upcase)
+      make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 3, true, "#{host[0]}-#{host[2]}#{hba}", "#{host[1]}", 3, target)
+    elsif target.upcase == "CUSTOM"
+      make_zone(nil, nil, host, 3, nil, "#{host[0]}-#{host[2]}#{hba}", "#{host[1]}", 3, host[5].gsub(/\s/,"-"))
     else
-      make_zone(nil, nil, host, 3, nil, "#{host[0]}-#{host[2]}#{hba}", "#{host[1]}", 3)
+      make_zone(nil, nil, host, 3, nil, "#{host[0]}-#{host[2]}#{hba}", "#{host[1]}", 3, target)
     end
   end
 end
