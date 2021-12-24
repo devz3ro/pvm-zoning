@@ -57,7 +57,7 @@ print "Remove existing 6to4 IPv6 config? (Y/N): "
 existing = gets.upcase.strip
 
 unless (existing == "Y") || (existing == "N")
-  until (existing == "Y") || (existing == "N")                                                                             cct tttttt6
+  until (existing == "Y") || (existing == "N")
       print "Invalid input, please try again: "
       existing = gets.upcase.strip
   end
