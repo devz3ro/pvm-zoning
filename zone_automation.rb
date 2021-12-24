@@ -70,19 +70,35 @@ end
 
 puts
 validpf = %w(pvm intel opensys)
-puts "Valid platform choices are: (pvm | intel | opensys)"
-print "Please enter your platform: "
-
+validpf.each_with_index do |platform, index|
+  index += 1
+  puts "#{index} = #{platform}"
+end
+puts
+print "Please enter your platform (Above are the available platforms): "
 @platform_input = gets.strip
+validpf.each_with_index do |platform, index|
+  index += 1
+  if index.to_s == @platform_input
+    @platform_input = platform
+  end
+end
+puts
 
-until validpf.include?(@platform_input)
-  puts "Invalid input, please try again"
-  @platform_input = gets.strip
+Dir.entries('.').grep(/xlsx$/).each_with_index do |workbook, index|
+  index += 1
+  puts "#{index} = #{workbook}"
+end
+puts
+print "Enter the workbook file name (Above are the available files): "
+excel = gets.strip
+Dir.entries('.').grep(/xlsx$/).each_with_index do |workbook, index|
+  index += 1
+  if index.to_s == excel
+    excel = workbook
+  end
 end
 
-puts
-print "Enter the workbook file name (Example - sonj.xlsx): "
-excel = gets.strip
 workbook = Creek::Book.new "#{excel}"
 @worksheets = workbook.sheets
 
@@ -99,7 +115,7 @@ print "Enter the host type (Example -> RS | CS | SUN): "
 puts
 puts "Currently defined targets:"
 puts
-puts "CUSTOM = parse from sheet"
+puts "0 = Parse from workbook"
 wwpn_data.each { |wwpn_print|
 	puts wwpn_print["wwpn_id"] + " = " + wwpn_print["short_name"]
 }
@@ -180,7 +196,7 @@ if @platform_input == "opensys"
     end
     if name_wwpn_list.include?(target.upcase)
       make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, 3, true, "#{host[0]}-#{host[2]}#{hba}", host[1], 3, target)
-    elsif target.upcase == "CUSTOM"
+    elsif target == "0"
       if name_wwpn_list.include?(host[5])
         wwpn_data.each do |group|
           if group["short_name"] == host[5]
