@@ -1,4 +1,5 @@
 #!/usr/local/bin/ruby
+require 'date'
 require 'json'
 require 'creek'
 require 'net/ssh'
@@ -24,12 +25,12 @@ def cmd(ssh_exec,command_string)
     end
 end
 
-def parsesheets(grep)
+def parsesheets(grep, array)
   @worksheets.each do |worksheet|
     worksheet.rows.each do |row|
       row_cells = row.values
       unless row_cells.grep(/#{grep}/).empty?
-        @host_wwpn_list.push(row_cells)
+        array.push(row_cells)
       end
     end
   end
@@ -115,7 +116,7 @@ print "Enter the host type (Example -> RS | CS | SUN): "
 puts
 puts "Currently defined targets:"
 puts
-puts "0 = Parse from workbook"
+puts "0 = Parse from workbook (*opensys only*)"
 wwpn_data.each { |wwpn_print|
 	puts wwpn_print["wwpn_id"] + " = " + wwpn_print["short_name"]
 }
@@ -137,9 +138,12 @@ print "Enter the vsan (Example -> 100): "
 @vsan = gets.strip
 
 pvmf = [3, 7, 11, 15, 19]
-@host_wwpn_list = []
+host_wwpn_list = []
 tmparr1 = []
 tmparr2 = []
+wrkord = []
+start_date = []
+hours = []
 @host_num = '001'
 @target_port_count = 1
 @zone_member_list = []
@@ -147,9 +151,9 @@ tmparr2 = []
 @zone_file.puts "configure terminal"
 
 if @platform_input == "pvm"
-  parsesheets("^c05")
+  parsesheets("^c05", host_wwpn_list)
   pvmf.each do |field|
-    @host_wwpn_list.each do |host|
+    host_wwpn_list.each do |host|
       if name_wwpn_list.include?(target.upcase)
         make_zone(tgt_wwpn_list, tgt_wwpn_list.length / 2, host, field, true, nil, host[field - 1], nil, target)
       else
@@ -161,8 +165,8 @@ if @platform_input == "pvm"
 end
 
 if @platform_input == "intel"
-  parsesheets("vHBA")
-  @host_wwpn_list.each_with_index do |host, index|
+  parsesheets("vHBA", host_wwpn_list)
+  host_wwpn_list.each_with_index do |host, index|
     tmparr1.push(host[1])
     unless host[1] == tmparr1[index - 1]
       @host_num = @host_num.next
@@ -176,8 +180,8 @@ if @platform_input == "intel"
 end
 
 if @platform_input == "opensys"
-  parsesheets("100000|200000")
-  @host_wwpn_list.each do |host|
+  parsesheets("100000|200000", host_wwpn_list)
+  host_wwpn_list.each do |host|
     unless host[0] == nil
       tmparr2.push(host)
     end
@@ -216,12 +220,22 @@ end
 puts
 print "Enter the customer name (Example -> SONJ): "
 customer = gets.strip
-puts
-print "Enter the work order number (Example -> WO12434): "
-work_order = gets.strip
-puts
-print "Enter the start and duration (Example -> 0101-8am-48hrs): "
-duration = gets.strip
+if @platform_input == "opensys"
+  parsesheets("Work Order", wrkord)
+  work_order = "WO" + wrkord[0][8]
+  parsesheets("Start Date", start_date)
+  parsesheets("Duration", hours)
+  date = Date.parse(start_date[0][5].to_s)
+  duration = date.strftime("%a-%b-%d-%Y-") + hours[0][5] + "hrs"
+else
+  puts
+  print "Enter the work order number (Example -> WO12434): "
+  work_order = gets.strip
+  puts
+  print "Enter the start and duration (Example -> 0101-8am-48hrs): "
+  duration = gets.strip
+end
+
 
 @zone_file.puts
 @zone_file.puts "zoneset name #{customer.upcase}-#{work_order.upcase}-#{duration.upcase} vsan #{@vsan}"
