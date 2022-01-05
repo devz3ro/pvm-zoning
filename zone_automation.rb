@@ -41,11 +41,11 @@ def make_zone(target_wwpn_list, slice, host, field, roundr, hf1, hf2, cell, tgt)
     hba_num = 0
     host[field].split("\n").each do |address|
       unless hf1.nil?
-        @zone_member_list.push("member #{@platform.upcase}-#{tgt.upcase}-#{@host_num}-#{hf1}-#{hf2}")
-        @zone_file.puts "zone name #{@platform.upcase}-#{tgt.upcase}-#{@host_num}-#{hf1}-#{hf2} vsan #{@vsan}"
+        @zone_member_list.push("member #{@shortname.upcase}-#{tgt.upcase}-#{@host_num}-#{hf1}-#{hf2}")
+        @zone_file.puts "zone name #{@shortname.upcase}-#{tgt.upcase}-#{@host_num}-#{hf1}-#{hf2} vsan #{@vsan}"
       else
-        @zone_member_list.push("member #{@platform.upcase}-#{tgt.upcase}-#{@host_num}-hba#{hba_num}-#{hf2}")
-        @zone_file.puts "zone name #{@platform.upcase}-#{tgt.upcase}-#{@host_num}-hba#{hba_num}-#{hf2} vsan #{@vsan}"
+        @zone_member_list.push("member #{@shortname.upcase}-#{tgt.upcase}-#{@host_num}-hba#{hba_num}-#{hf2}")
+        @zone_file.puts "zone name #{@shortname.upcase}-#{tgt.upcase}-#{@host_num}-hba#{hba_num}-#{hf2} vsan #{@vsan}"
       end
       if @platform_input == "pvm"
         @zone_file.puts "member pwwn " + address
@@ -69,6 +69,8 @@ def make_zone(target_wwpn_list, slice, host, field, roundr, hf1, hf2, cell, tgt)
   end
 end
 
+puts "––––––––––––––––––––––––––––––––––––––––––––––––"
+puts "Available plaforms"
 puts
 validpf = %w(pvm intel opensys)
 validpf.each_with_index do |platform, index|
@@ -76,23 +78,25 @@ validpf.each_with_index do |platform, index|
   puts "#{index} = #{platform}"
 end
 puts
-print "Please enter your platform (Above are the available platforms): "
+print "Choose your platform: "
 @platform_input = gets.strip
+puts "––––––––––––––––––––––––––––––––––––––––––––––––"
 validpf.each_with_index do |platform, index|
   index += 1
   if index.to_s == @platform_input
     @platform_input = platform
   end
 end
+puts "Available workbooks"
 puts
-
 Dir.entries('.').grep(/xlsx$/).each_with_index do |workbook, index|
   index += 1
   puts "#{index} = #{workbook}"
 end
 puts
-print "Enter the workbook file name (Above are the available files): "
+print "Choose your workbook: "
 excel = gets.strip
+puts "––––––––––––––––––––––––––––––––––––––––––––––––"
 Dir.entries('.').grep(/xlsx$/).each_with_index do |workbook, index|
   index += 1
   if index.to_s == excel
@@ -110,10 +114,23 @@ wwpn_data.sort_by! { |name|
 	name["wwpn_id"]
 }
 
+puts "Available shortnames"
 puts
-print "Enter the host type (Example -> RS | CS | SUN | HP | DEC): "
-@platform = gets.strip
+validshortname = %w(RS CS SUN HP DEC)
+validshortname.each_with_index do |shrtnme, index|
+  index += 1
+  puts "#{index} = #{shrtnme}"
+end
 puts
+print "Choose your shortname: "
+@shortname = gets.strip
+validshortname.each_with_index do |shrtnme, index|
+  index += 1
+  if index.to_s == @shortname
+    @shortname = shrtnme
+  end
+end
+puts "––––––––––––––––––––––––––––––––––––––––––––––––"
 puts "Currently defined targets:"
 puts
 puts "0 = Parse from workbook (*opensys only*)"
@@ -121,8 +138,9 @@ wwpn_data.each { |wwpn_print|
 	puts wwpn_print["wwpn_id"] + " = " + wwpn_print["short_name"]
 }
 puts
-print "Enter the target device: "
+print "Choose your target device: "
 target = gets.strip
+puts "––––––––––––––––––––––––––––––––––––––––––––––––"
 tgt_wwpn_list = {}
 name_wwpn_list = []
 wwpn_data.each do |group|
@@ -133,8 +151,7 @@ wwpn_data.each do |group|
   end
 end
 
-puts
-print "Enter the vsan (Example -> 100): "
+print "Enter the vsan: "
 @vsan = gets.strip
 
 pvmf = [3, 7, 11, 15, 19]
@@ -218,8 +235,8 @@ if @platform_input == "opensys"
   end
 end
 
-puts
-print "Enter the customer name (Example -> SONJ): "
+puts "––––––––––––––––––––––––––––––––––––––––––––––––"
+print "Enter the customer name: "
 customer = gets.strip
 if @platform_input == "opensys"
   parsesheets("Work Order", wrkord)
@@ -229,11 +246,11 @@ if @platform_input == "opensys"
   date = Date.parse(start_date[0][5].to_s)
   duration = date.strftime("%a-%b-%d-%Y-") + hours[0][5] + "hrs"
 else
-  puts
-  print "Enter the work order number (Example -> WO12434): "
+  puts "––––––––––––––––––––––––––––––––––––––––––––––––"
+  print "Enter the work order number: "
   work_order = gets.strip
-  puts
-  print "Enter the start and duration (Example -> 0101-8am-48hrs): "
+  puts "––––––––––––––––––––––––––––––––––––––––––––––––"
+  print "Enter the start and duration: "
   duration = gets.strip
 end
 
@@ -245,18 +262,19 @@ end
 @zone_file.puts "zone commit vsan #{@vsan}"
 @zone_file.close
 
-puts
+puts "––––––––––––––––––––––––––––––––––––––––––––––––"
 puts "zone_file.txt created in #{FileUtils.pwd()}, please review it for accuracy."
-puts
+puts "––––––––––––––––––––––––––––––––––––––––––––––––"
 print "Enter switch ip (default = 172.23.79.11): "
 server = gets.strip
-puts
+puts "––––––––––––––––––––––––––––––––––––––––––––––––"
 print "Enter your (switch) username: "
 user = gets.strip
-puts
+puts "––––––––––––––––––––––––––––––––––––––––––––––––"
 print "Enter your (switch) password: "
 pass = STDIN.noecho(&:gets).strip
 puts
+puts "––––––––––––––––––––––––––––––––––––––––––––––––"
 
 Net::SSH.start(server, user, :password => pass) do |ssh|
   command_file = File.read("zone_file.txt").split("\n")
