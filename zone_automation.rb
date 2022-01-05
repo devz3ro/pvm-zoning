@@ -111,7 +111,7 @@ wwpn_data.sort_by! { |name|
 }
 
 puts
-print "Enter the host type (Example -> RS | CS | SUN): "
+print "Enter the host type (Example -> RS | CS | SUN | HP | DEC): "
 @platform = gets.strip
 puts
 puts "Currently defined targets:"
@@ -180,7 +180,8 @@ if @platform_input == "intel"
 end
 
 if @platform_input == "opensys"
-  parsesheets("100000|200000", host_wwpn_list)
+  parsesheets("^100000|^500", host_wwpn_list)
+  parsesheets("^200000|^210000", host_wwpn_list)
   host_wwpn_list.each do |host|
     unless host[0] == nil
       tmparr2.push(host)
@@ -222,7 +223,7 @@ print "Enter the customer name (Example -> SONJ): "
 customer = gets.strip
 if @platform_input == "opensys"
   parsesheets("Work Order", wrkord)
-  work_order = "WO" + wrkord[0][8]
+  work_order = "WO" + wrkord[0][8].to_i.to_s
   parsesheets("Start Date", start_date)
   parsesheets("Duration", hours)
   date = Date.parse(start_date[0][5].to_s)
