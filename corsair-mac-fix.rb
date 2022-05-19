@@ -11,7 +11,7 @@ def prompt(answer)
 end
 
 puts
-puts "(Note: sudo password is required, enter it if prompted)"
+puts "(Note: sudo password is required, enter it if / when prompted)"
 print "Have you previously attempted to install iCUE and would you like me to clean up? [Delete -> /Applications/Corsair] (Y/N): "
 previous_install = gets.upcase.strip
 prompt (previous_install)
@@ -23,7 +23,7 @@ end
 
 puts
 
-print "Have you previously installed homebrew (http://brew.sh)? (Y/N): "
+print "Have you previously installed homebrew (http://brew.sh)? [answering \"N\" will install it] (Y/N): "
 existing = gets.upcase.strip
 prompt(existing)
 
@@ -44,7 +44,7 @@ puts
 system "/usr/local/bin/python2 -m pip install PyCocoa"
 puts
 puts "Creating requred file, it will be located here: #{FileUtils.pwd()}/set-file-icon"
-puts "This file can be safely removed once this process completes"
+puts "(This file can be safely removed once this process completes.)"
 corsair_file = File.open("set-file-icon", "w:UTF-8")
 corsair_file.puts "#!/usr/local/bin/python2"
 corsair_file.puts
