@@ -35,13 +35,13 @@ if existing == "N"
 end
 
 sleep 1
-system "brew install kamilturek/python2/python@2"
+system "/usr/local/bin/brew install kamilturek/python2/python@2"
 sleep 1
 puts
-system "python2 -m pip install pyobjc-framework-Cocoa"
+system "/usr/local/bin/python2 -m pip install pyobjc-framework-Cocoa"
 sleep 1
 puts
-system "python2 -m pip install PyCocoa"
+system "/usr/local/bin/python2 -m pip install PyCocoa"
 puts
 puts "Creating requred file, it will be located here: #{FileUtils.pwd()}/set-file-icon"
 corsair_file = File.open("set-file-icon", "w:UTF-8")
@@ -55,7 +55,7 @@ corsair_file.close
 FileUtils.chmod 0755, "#{FileUtils.pwd()}/set-file-icon"
 
 puts
-puts "After entering your sudo Password you may start the iCUE Installer."
+puts "After continuing below, you may start the iCUE Installer."
 puts
 puts "While it's installing, leave the terminal window open it the background, crtl+c in the terminal window after installation completes."
 puts
