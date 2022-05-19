@@ -44,6 +44,7 @@ puts
 system "/usr/local/bin/python2 -m pip install PyCocoa"
 puts
 puts "Creating requred file, it will be located here: #{FileUtils.pwd()}/set-file-icon"
+puts "This file can be safely removed once this process completes"
 corsair_file = File.open("set-file-icon", "w:UTF-8")
 corsair_file.puts "#!/usr/local/bin/python2"
 corsair_file.puts
@@ -63,9 +64,7 @@ puts
 print "Continue? (Y/N): "
 continue = gets.upcase.strip
 prompt(continue)
-
 puts
-print "Enter your sudo password if prompted -> "
 
 if continue == "Y"
     while true
