@@ -23,11 +23,9 @@ if previous_install == "Y"
 end
 
 puts
-
 print "Have you previously installed homebrew (http://brew.sh)? [answering \"N\" will install it] (Y/N): "
 existing = gets.upcase.strip
 prompt(existing)
-
 puts
 
 if existing == "N"
