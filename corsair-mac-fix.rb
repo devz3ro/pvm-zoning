@@ -12,7 +12,7 @@ end
 
 puts
 puts "(Note: sudo password is required, enter it if / when prompted)"
-print "Have you previously attempted to install iCUE and would you like me to clean up? [Delete -> /Applications/Corsair] (Y/N): "
+print "Have you previously attempted (failed) to install iCUE and would you like to clean up? [Delete -> /Applications/Corsair] (Y/N): "
 previous_install = gets.upcase.strip
 prompt(previous_install)
 
