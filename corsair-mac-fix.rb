@@ -14,7 +14,7 @@ puts
 puts "(Note: sudo password is required, enter it if / when prompted)"
 print "Have you previously attempted to install iCUE and would you like me to clean up? [Delete -> /Applications/Corsair] (Y/N): "
 previous_install = gets.upcase.strip
-prompt (previous_install)
+prompt(previous_install)
 
 if previous_install == "Y"
     system "ps aux | grep -i icue | awk '{print $2}' | xargs kill -9"
