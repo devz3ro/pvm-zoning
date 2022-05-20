@@ -58,7 +58,7 @@ FileUtils.chmod 0755, "#{FileUtils.pwd()}/set-file-icon"
 puts
 puts "After continuing below, you may start the iCUE Installer."
 puts
-puts "While it's installing, leave the terminal window open it the background, crtl+c in the terminal window after installation completes."
+puts "While it's installing, leave the terminal window open in the background. Crtl+c in the terminal window after installation completes."
 puts
 
 print "Continue? (Y/N): "
