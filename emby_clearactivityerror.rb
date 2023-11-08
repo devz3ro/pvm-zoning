@@ -17,14 +17,14 @@ if File.exist?(db_file)
   error_entries = db.execute('SELECT * FROM ActivityLog WHERE LogSeverity = ?', 'Error')
 
   if error_entries.any?
-    timestamp = Time.now.strftime('%m/%d/%Y %H:%M')
+    timestamp = Time.now.strftime('%m/%d/%Y %I:%M %p')
 
-    File.open('error.log', 'a') do |log_file|
-      log_file.puts("Timestamp: #{timestamp}")
-      log_file.puts("Errors found:")
+    File.open('emby_clearactivityerror.log', 'a') do |log_file|
+      log_file.puts("Error(s) found! Timestamp of execution: #{timestamp}")
 
       error_entries.each do |entry|
-        log_file.puts("LogID: #{entry[0]}, LogMessage: #{entry[1]}")
+        log_timestamp = Time.at(entry[7] / 1000).strftime('%m/%d/%Y %I:%M %p')
+        log_file.puts("LogMessage: #{entry[1]}, LogTimeStamp: #{log_timestamp}, LogIP: #{entry[3]}")
       end
     end
 
