@@ -23,7 +23,7 @@ if File.exist?(db_file)
       log_file.puts("Error(s) found! Timestamp of execution: #{timestamp}")
 
       error_entries.each do |entry|
-        log_timestamp = entry[7] ? Time.at(entry[7] / 1000).strftime('%m/%d/%Y %I:%M %p') : "Unknown Time"
+        log_timestamp = entry[5] ? Time.at(entry[5] / 1000).strftime('%m/%d/%Y %I:%M %p') : "Unknown Time"
         log_file.puts("LogMessage: #{entry[1]}, LogTimeStamp: #{log_timestamp}, LogIP: #{entry[3]}")
       end
     end
